@@ -1,3 +1,6 @@
 ./speech-separation/model.zip
 ./speech-separation/model_checkpoints
 ./speech-separation/model
+
+./audio-upsample/__pycache__
+./audio-upsample/utils/__pycache__
