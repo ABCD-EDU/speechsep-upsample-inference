@@ -49,20 +49,20 @@ class Separation(sb.Brain):
         return est_source
 
     
-    def save_audio(self,predictions):
+    def save_audio(self,predictions, output_path):
         # print(self.hparams)
         for ns in range(int(self.hparams.num_spks)):
             # Estimated source
             signal = predictions[0, :, ns]
             signal = signal / signal.abs().max()
             save_file = os.path.join(
-                "results", "source{}hat.wav".format(ns + 1)
+                f"{output_path}", "source{}hat.wav".format(ns + 1)
             )
             torchaudio.save(
                 save_file, signal.unsqueeze(0).cpu(), self.hparams.sample_rate
             )
 
-def run(mix_audio_path:str):
+def run(input_path:str, output_path:str):
     # Load hyperparameters file with command-line overrides
     hparams_file, run_opts, overrides = sb.parse_arguments(sys.argv[1:])
     with open(hparams_file) as fin:
@@ -80,16 +80,16 @@ def run(mix_audio_path:str):
         hparams=hparams,
         run_opts=run_opts,
     )
-    mix_audio  = read_audio(mix_audio_path)
+    mix_audio  = read_audio(input_path)
     with torch.no_grad():
         predictions= separator.compute_forward(mix=mix_audio.unsqueeze(0)) 
 
-    separator.save_audio(predictions=predictions)
+    separator.save_audio(predictions=predictions,output_path=output_path)
     
         
           
 if __name__ == "__main__":
-    run('test_mix.wav')
+    run('test_mix.wav','results')
     
     
     
