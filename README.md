@@ -9,6 +9,8 @@ pip install -r requirements.txt
 pip install speechbrain
 pip uninstall torch
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
+pip install librosa
+pip install pyannote.audio
 ```
 
 1. Create a folder named model
