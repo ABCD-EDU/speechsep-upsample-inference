@@ -15,7 +15,7 @@ from datetime import datetime
 def run(input_path:str, output_path:str):
     device='cuda'
     no_init_noise=True,
-    steps = None
+    steps = 8
     hparams = OC.load('hparameter.yaml')
     if steps is not None:
         hparams.ddpm.max_step = steps
@@ -23,7 +23,7 @@ def run(input_path:str, output_path:str):
                 "torch.tensor([1e-6,2e-6,1e-5,1e-4,1e-3,1e-2,1e-1,9e-1])"
     else:
         steps = hparams.ddpm.max_step
-    model = NuWave(hparams).to(device)
+    model = NuWave(hparams, False).to(device)
     # start timer
     startTime = datetime.now()
     ckpt_path = os.path.join(hparams.log.checkpoint_dir, "latest_checkpoint.ckpt")
@@ -35,17 +35,9 @@ def run(input_path:str, output_path:str):
     lp = LowPass(ratio = [1/2]).to(device)
     wav = lp(wav, 0)
 
-    upsampled = model.sample(wav, hparams.ddpm.max_step, no_init_noise,
-                             True)
+    upsampled = model.sample(wav, hparams.ddpm.max_step, no_init_noise,False)
 
-    for i, uwav in enumerate(upsampled):
-        t = hparams.ddpm.max_step - i
-        if t != 0:
-            continue
-        swrite(f'{output_path}',
-               hparams.audio.sr, uwav[0].detach().cpu().numpy())
-
-    print(datetime.now() - startTime, startTime, datetime.now())
+    swrite(f'{output_path}', hparams.audio.sr, upsampled[0].detach().cpu().numpy())
 
 if __name__ == "__main__":
     run(input_path="sepformer_out.wav", output_path="latest_test_x3")
