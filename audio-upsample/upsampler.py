@@ -7,7 +7,7 @@ import os
 from datetime import datetime
 
 # absolute path pls
-directory = "C:/Users/chris/Music/audio_results"
+directory = "G:\Thesis\Results\\batchsize1_w_noise_speedperturb\sepformer-libri2mix\\1234\\audio_results"
 wavs = glob(directory + "/*hat.wav")
 outdir_name = directory + "/upsampled"
 
