@@ -1,6 +1,11 @@
-./speech-separation/model.zip
-./speech-separation/model_checkpoints
-./speech-separation/model
+model.zip
+./speech-separation/model.zip/
+./speech-separation/model_checkpoints/
+./speech-separation/model/
 
-./audio-upsample/__pycache__
-./audio-upsample/utils/__pycache__
+./speech-sep-metrics/model/
+./speech-sep-metrics/model_checkpoints/
+./speech-sep-metrics/data/
+
+./audio-upsample/__pycache__/
+./audio-upsample/utils/__pycache__/

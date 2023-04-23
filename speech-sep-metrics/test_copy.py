@@ -54,7 +54,7 @@ class Separation(sb.Brain):
             dim=-1,
         ).to(self.device)
 
-        print(f"mix: {mix.shape}")
+
         # Separation
         mix_w = self.hparams.Encoder(mix)
         est_mask = self.hparams.MaskNet(mix_w)
@@ -77,6 +77,7 @@ class Separation(sb.Brain):
             est_source = F.pad(est_source, (0, 0, 0, T_origin - T_est))
         else:
             est_source = est_source[:, :T_origin, :]
+        print(est_source.shape, targets.shape)
 
         return est_source, targets
 
@@ -97,11 +98,7 @@ class Separation(sb.Brain):
         with torch.no_grad():
             predictions, targets = self.compute_forward(mixture, targets, stage)
             loss = self.compute_objectives(predictions, targets)
-              # Compute SI-SNR improvement
-        # self.some_shit()
-
-        # print(f"mixture: {mixture}")
-    
+            
         # Manage audio file saving
         if stage == sb.Stage.TEST and self.hparams.save_audio:
             if hasattr(self.hparams, "n_audio_to_save"):
@@ -113,37 +110,7 @@ class Separation(sb.Brain):
 
         return loss.mean().detach()
 
-    def some_shit(self):
-        test_loader = sb.dataio.dataloader.make_dataloader(
-            test_data, **self.hparams.dataloader_opts
-        )
-                # Loop over all test sentence
-        with tqdm(test_loader, dynamic_ncols=True) as t:
-            for i, batch in enumerate(t):
-
-                # Apply Separation
-                mixture, mix_len = batch.mix_sig
-                snt_id = batch.id
-                targets = [batch.s1_sig, batch.s2_sig]
-                if self.hparams.num_spks == 3:
-                    targets.append(batch.s3_sig)
-
-                with torch.no_grad():
-                    predictions, targets = self.compute_forward(
-                        batch.mix_sig, targets, sb.Stage.TEST
-                    )
-
-                # Compute SI-SNR
-                sisnr = self.compute_objectives(predictions, targets)
-
-                # Compute SI-SNR improvement
-                mixture_signal = torch.stack(
-                    [mixture] * self.hparams.num_spks, dim=-1
-                )
-                mixture_signal = mixture_signal.to(targets.device)
-                sisnr_baseline = self.compute_objectives(
-                    mixture_signal, targets
-                ) 
+    
 
 
     def save_results(self, test_data):
@@ -173,9 +140,12 @@ class Separation(sb.Brain):
 
             # Loop over all test sentence
             with tqdm(test_loader, dynamic_ncols=True) as t:
+                print('HEEEY')
                 for i, batch in enumerate(t):
 
-                    # Apply Separation
+                    
+                    
+ # Apply Separation
                     mixture, mix_len = batch.mix_sig
                     snt_id = batch.id
                     targets = [batch.s1_sig, batch.s2_sig]
@@ -186,15 +156,16 @@ class Separation(sb.Brain):
                         predictions, targets = self.compute_forward(
                             batch.mix_sig, targets, sb.Stage.TEST
                         )
-                    
-
+                        
                     # Compute SI-SNR
                     sisnr = self.compute_objectives(predictions, targets)
-
+                    
                     # Compute SI-SNR improvement
                     mixture_signal = torch.stack(
                         [mixture] * self.hparams.num_spks, dim=-1
                     )
+                    print(f"mixture: {mixture}")
+                    print(f"mixture signal: {mixture_signal}")
                     mixture_signal = mixture_signal.to(targets.device)
                     sisnr_baseline = self.compute_objectives(
                         mixture_signal, targets
@@ -244,44 +215,6 @@ class Separation(sb.Brain):
         logger.info("Mean SDR is {}".format(np.array(all_sdrs).mean()))
         logger.info("Mean SDRi is {}".format(np.array(all_sdrs_i).mean()))
 
-    def save_audio(self, snt_id, mixture, targets, predictions):
-        "saves the test audio (mixture, targets, and estimated sources) on disk"
-
-        # Create outout folder
-        save_path = os.path.join(self.hparams.save_folder, "audio_results")
-        if not os.path.exists(save_path):
-            os.mkdir(save_path)
-
-        for ns in range(self.hparams.num_spks):
-
-            # Estimated source
-            signal = predictions[0, :, ns]
-            signal = signal / signal.abs().max()
-            save_file = os.path.join(
-                save_path, "item{}_source{}hat.wav".format(snt_id, ns + 1)
-            )
-            torchaudio.save(
-                save_file, signal.unsqueeze(0).cpu(), self.hparams.sample_rate
-            )
-
-            # Original source
-            signal = targets[0, :, ns]
-            signal = signal / signal.abs().max()
-            save_file = os.path.join(
-                save_path, "item{}_source{}.wav".format(snt_id, ns + 1)
-            )
-            torchaudio.save(
-                save_file, signal.unsqueeze(0).cpu(), self.hparams.sample_rate
-            )
-
-        # Mixture
-        signal = mixture[0][0, :]
-        signal = signal / signal.abs().max()
-        save_file = os.path.join(save_path, "item{}_mix.wav".format(snt_id))
-        torchaudio.save(
-            save_file, signal.unsqueeze(0).cpu(), self.hparams.sample_rate
-        )
-
 
 
 def dataio_prep(hparams):
@@ -300,8 +233,6 @@ def dataio_prep(hparams):
     @sb.utils.data_pipeline.provides("mix_sig")
     def audio_pipeline_mix(mix_wav):
         mix_sig = sb.dataio.dataio.read_audio(mix_wav)
-        print(f"mix_sig: {mix_sig}")
-        print(f"mix_sig: {mix_sig.shape}")
         return mix_sig
 
     @sb.utils.data_pipeline.takes("s1_wav")
@@ -412,9 +343,6 @@ if __name__ == "__main__":
         run_opts=run_opts,
     )
 
-
-    
-
     # Eval
-    separator.evaluate(test_data, min_key="si-snr")
+    # separator.evaluate(test_data, min_key="si-snr")
     separator.save_results(test_data)
