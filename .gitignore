@@ -6,6 +6,10 @@ model.zip
 ./speech-sep-metrics/model/
 ./speech-sep-metrics/model_checkpoints/
 ./speech-sep-metrics/data/
+**/**.wav
+**/**.ckpt
 
 ./audio-upsample/__pycache__/
 ./audio-upsample/utils/__pycache__/
+
+audio-upsample
