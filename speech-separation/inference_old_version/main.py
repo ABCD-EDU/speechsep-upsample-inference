@@ -88,8 +88,8 @@ def run(input_path:str, output_path:str):
     
         
           
-if __name__ == "__main__":
-    run('test_mix.wav','results')
+# if __name__ == "__main__":
+#     run('test_mix.wav','results')
     
     
     

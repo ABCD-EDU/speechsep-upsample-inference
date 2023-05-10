@@ -11,5 +11,3 @@ model.zip
 
 ./audio-upsample/__pycache__/
 ./audio-upsample/utils/__pycache__/
-
-audio-upsample

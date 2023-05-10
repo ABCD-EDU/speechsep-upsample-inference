@@ -17,21 +17,6 @@ def collect_tstamps(diarization):
    for turn,_, speaker in diarization.itertracks(yield_label=True):
       timestamps = (f"speaker_{speaker}",turn.start, turn.end) 
    return timestamps
-   # with open("audio.rttm") as file:
-      
-      # speaker_tstamp = {}
-      # info = file.read()
-      # info = info.split('\n')
-      # for i,line in enumerate(info):
-      #    line_spl = line.split(' ')
-      #    speaker_n = line_spl[-3]
-      #    t_stamp = line_spl[3]
-         
-      #    if i==len(info)-2:
-      #       speaker_tstamp[i] = (speaker_n,t_stamp, librosa.get_duration(filename="audio.wav"))
-      #       return speaker_tstamp
-      #    speaker_tstamp[i] = (speaker_n,t_stamp, info[i+1].split(' ')[3])
-
 
 def produce_audio_for_sep_speakers(timestamps):
    
