@@ -8,9 +8,16 @@ from datetime import datetime
 from tqdm import tqdm
 
 # absolute path pls
-directory = "C:/Users/chris/Music/standard_model_3_speakers/audio_results"
+directory = "C:/Users/chris/Music/sequential/audio_results"
 # directory ="../speech-sep-metrics/results/audio_results"
 wavs = glob(directory + "/*hat.wav")
+wavs = sorted(wavs)
+length = len(wavs)
+
+# choose which half to upsample
+wavs = wavs[:int(length/2)]
+# wavs = wavs[int(length/2):]
+
 outdir_name = directory + "/upsampled"
 
 if not os.path.exists(outdir_name):
